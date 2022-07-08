@@ -1,12 +1,22 @@
 import { NegociacaoController } from "./controllers/negociacao-controller.js";
-const controler = new NegociacaoController();
+const controller = new NegociacaoController();
 const form = document.querySelector(".form");
 if (form) {
     form.addEventListener("submit", (event) => {
         event.preventDefault();
-        controler.adiciona();
+        controller.adiciona();
     });
 }
 else {
     throw Error("Não foi possivel inicializar a aplicação, verifique se seu form existe!");
 }
+const botaoImporta = document.querySelector("#botao-importa");
+if (botaoImporta) {
+    botaoImporta.addEventListener("click", () => {
+        controller.importaDados();
+    });
+}
+else {
+    throw Error("Botão importa não foi encontrado");
+}
+//# sourceMappingURL=app.js.map

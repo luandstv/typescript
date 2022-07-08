@@ -1,27 +1,31 @@
 import { logarTempoDeExecucao } from "../decorators/logar-tempo-de-execucao.js";
+import { inspect } from "../decorators/inspect.js";
 import { DiasDaSemana } from "../enums/dias-da-semana.js";
 import { Negociacao } from "../models/negociacao.js";
 import { Negociacoes } from "../models/negociacoes.js";
 import { MensagemView } from "../views/mensagem-view.js";
 import { NegociacoesView } from "../views/negociacoes-view.js";
+import { domInject } from "../decorators/dom-injector.js";
+import { NegociacoesService } from "../service/negociacoes-service.js";
+import { imprimir } from "../utils/imprimir.js";
 
 export class NegociacaoController {
+  @domInject("#data")
   private inputData: HTMLInputElement;
+  @domInject("#quantidade")
   private inputQuantidade: HTMLInputElement;
+  @domInject("#valor")
   private inputValor: HTMLInputElement;
   private negociacoes = new Negociacoes();
   private negociacoesView = new NegociacoesView("#negociacoesView");
   private mensagemView = new MensagemView("#mensagemView");
+  private negociacoesService = new NegociacoesService();
 
   constructor() {
-    this.inputData = document.querySelector("#data") as HTMLInputElement;
-    this.inputQuantidade = document.querySelector(
-      "#quantidade"
-    ) as HTMLInputElement;
-    this.inputValor = document.querySelector("#valor") as HTMLInputElement;
     this.negociacoesView.update(this.negociacoes);
   }
 
+  @inspect()
   @logarTempoDeExecucao(true)
   public adiciona(): void {
     const negociacao = Negociacao.criaDe(
@@ -37,8 +41,30 @@ export class NegociacaoController {
     }
 
     this.negociacoes.adiconaNegociacoes(negociacao);
-    this.updateViews();
+    imprimir(negociacao, this.negociacoes);
     this.limparFormulario();
+    this.updateViews();
+  }
+
+  importaDados(): void {
+    this.negociacoesService
+      .obterNegociacoes()
+      .then((negocacoesDeHoje) => {
+        return negocacoesDeHoje.filter((negocacoesDeHoje) => {
+          return !this.negociacoes
+            .lista()
+            .some((negociacao) => negociacao.ehIgual(negociacao));
+        });
+      })
+      .then((negociacoesDeHoje) => {
+        // for (let negociacao of negociacoesDeHoje) {
+        //   this.negociacoes.adiconaNegociacoes(negociacao);
+        // }
+        negociacoesDeHoje.forEach((negociacao) => {
+          this.negociacoes.adiconaNegociacoes(negociacao);
+        });
+        this.negociacoesView.update(this.negociacoes);
+      });
   }
 
   private isAWorkingDay(data: Date): boolean {

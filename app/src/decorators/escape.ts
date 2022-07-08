@@ -1,4 +1,4 @@
-export function inpect() {
+export function escape() {
   return function (
     target: any,
     propertyKey: string,
@@ -6,7 +6,10 @@ export function inpect() {
   ) {
     const metodoOriginal = descriptor.value;
     descriptor.value = function (...args: any[]) {
-      const retorno = metodoOriginal.apply(this, args); //this é o contexto dessa nova function
+      let retorno = metodoOriginal.apply(this, args);
+      if (typeof retorno === "string") {
+        retorno = retorno.replace(/<script>[\s\S]*?<\/script>/, "");
+      }
       return retorno;
     };
     return descriptor;

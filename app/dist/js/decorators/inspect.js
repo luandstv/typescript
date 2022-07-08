@@ -1,4 +1,4 @@
-export function inpect() {
+export function inspect() {
     return function (target, propertyKey, descriptor) {
         const metodoOriginal = descriptor.value;
         descriptor.value = function (...args) {
@@ -11,3 +11,4 @@ export function inpect() {
         return descriptor;
     };
 }
+//# sourceMappingURL=inspect.js.map
